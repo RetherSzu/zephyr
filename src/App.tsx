@@ -1,7 +1,8 @@
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import { OrbitControls, Stats } from '@react-three/drei';
 
 import { Sun } from '@/components/Sun';
+import { GrassField } from '@/components/GrassField';
 import { GenerateTerrain } from '@/components/Terrain';
 
 function App() {
@@ -9,13 +10,17 @@ function App() {
         <Canvas
             style={{ aspectRatio: 1 / 1, width: '100%' }}
             shadows
-            camera={{ position: [5, 5, 5], fov: 60 }}
+            camera={{ position: [0.5, 0.5, 0.5], fov: 60 }}
         >
-            <color attach="background" args={['#000']} />
+            <color attach="background" args={['#192432']} />
             <Sun />
             <GenerateTerrain />
+            <GrassField />
             <OrbitControls />
             <axesHelper />
+            <Stats showPanel={0} />
+            <Stats showPanel={1} className="panel1" />
+            <Stats showPanel={2} className="panel2" />
         </Canvas>
     );
 }

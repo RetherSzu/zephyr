@@ -14,3 +14,11 @@ body {
     height: 100%;
     width: 100%;
 }
+
+.panel1 {
+    transform: translateX(80px);
+}
+
+.panel2 {
+    transform: translateX(160px);
+}
