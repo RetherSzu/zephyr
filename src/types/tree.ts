@@ -9,6 +9,8 @@ export interface BranchNode {
     depth: number;
     parent: BranchNode | null;
     children: BranchNode[];
+    startDistance: number;
+    endDistance: number;
 }
 
 export interface TreeOptions {

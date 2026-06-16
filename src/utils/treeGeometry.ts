@@ -1,11 +1,18 @@
 // R3F
 import { lerp } from 'three/src/math/MathUtils.js';
 import { BranchNode, TreeOptions } from '@/types/tree';
-import { BufferGeometry, BufferAttribute, Vector3 } from 'three';
+import {
+    BufferGeometry,
+    BufferAttribute,
+    Vector3,
+    Object3D,
+    InstancedMesh,
+    Color,
+} from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 // utils
-import { createPRNG } from '@/utils/prng';
+import { randomRange } from '@/utils/prng';
 
 export function buildBranch(
     parent: BranchNode | null,
@@ -26,14 +33,18 @@ export function buildBranch(
         start,
         direction.clone().multiplyScalar(length),
     );
+    const startDistance = parent ? parent.endDistance : 0;
+    const endDistance = startDistance + length;
     const node: BranchNode = {
         parent: parent,
         start: start,
         end: end,
         startRadius: radius,
-        endRadius: depth === 0 ? radius * radiusRatio : radius * radiusRatio,
+        endRadius: depth === 0 ? radius * taper : radius * radiusRatio,
         depth: depth,
         children: [],
+        startDistance: startDistance,
+        endDistance: endDistance,
     };
 
     if (depth >= maxDepth) {
@@ -88,11 +99,28 @@ export function buildBranch(
     return node;
 }
 
-export function generateTree(options: TreeOptions): BufferGeometry {
-    const rng = createPRNG(options.seed);
+export function generateTreeGeometry(
+    node: BranchNode,
+    heightSegments: number,
+    radialSegments: number,
+): BufferGeometry {
+    const geometries: BufferGeometry[] = generateBranchGeometry(
+        node,
+        heightSegments,
+        radialSegments,
+    );
+    const geometry = mergeGeometries(geometries);
+
+    return geometry;
+}
+
+export function buildSkeleton(
+    options: TreeOptions,
+    rng: () => number,
+): BranchNode {
     const start = new Vector3(0, 0, 0);
     const direction = new Vector3(0, 1, 0);
-    const branchNode: BranchNode = buildBranch(
+    return buildBranch(
         null,
         start,
         direction,
@@ -107,15 +135,6 @@ export function generateTree(options: TreeOptions): BufferGeometry {
         options.branch.angle,
         rng,
     );
-
-    const geometries: BufferGeometry[] = generateBranchGeometry(
-        branchNode,
-        options.geometry.heightSegments,
-        options.geometry.radialSegments,
-    );
-    const geometry = mergeGeometries(geometries);
-
-    return geometry;
 }
 
 export function generateBranchGeometry(
@@ -131,6 +150,8 @@ export function generateBranchGeometry(
     const indices: Uint32Array = new Uint32Array(
         (heightSegments - 1) * radialSegments * 6,
     );
+    const depths = new Float32Array(count);
+    const distances = new Float32Array(count);
 
     const direction: Vector3 = new Vector3()
         .subVectors(node.end, node.start)
@@ -185,6 +206,14 @@ export function generateBranchGeometry(
             normals[(i * radialSegments + j) * 3] = normalVec.x;
             normals[(i * radialSegments + j) * 3 + 1] = normalVec.y;
             normals[(i * radialSegments + j) * 3 + 2] = normalVec.z;
+
+            depths[i * radialSegments + j] = node.depth;
+            const vertexDistance = lerp(
+                node.startDistance,
+                node.endDistance,
+                heightRatio,
+            );
+            distances[i * radialSegments + j] = vertexDistance;
         }
     }
 
@@ -212,6 +241,9 @@ export function generateBranchGeometry(
     geometry.setAttribute('position', new BufferAttribute(positions, 3));
     geometry.setAttribute('normal', new BufferAttribute(normals, 3));
     geometry.setAttribute('uv', new BufferAttribute(uvs, 2));
+    geometry.setAttribute('branchDepth', new BufferAttribute(depths, 1));
+    geometry.setAttribute('branchDistance', new BufferAttribute(distances, 1));
+
     geometry.setIndex(new BufferAttribute(indices, 1));
 
     const geometries: BufferGeometry[] = [geometry];
@@ -228,4 +260,86 @@ export function generateBranchGeometry(
     });
 
     return geometries;
+}
+
+export function createFoliage(
+    positions: Vector3[],
+    mesh: InstancedMesh,
+    rng: () => number,
+) {
+    const dummy = new Object3D();
+    const color = new Color();
+
+    positions.forEach((pos, i) => {
+        dummy.position.copy(pos);
+        dummy.scale.setScalar(0.8 + rng() * 0.4);
+        dummy.rotation.set(
+            rng() * Math.PI * 2,
+            rng() * Math.PI * 2,
+            rng() * Math.PI * 2,
+        );
+        dummy.updateMatrix();
+        mesh.setMatrixAt(i, dummy.matrix);
+        const hue = 0.25 + (rng() - 0.5) * 0.05;
+        const lightness = 0.3 + rng() * 0.2;
+        color.setHSL(hue, 0.6, lightness);
+        mesh.setColorAt(i, color);
+    });
+
+    if (mesh.instanceColor) {
+        mesh.instanceColor.needsUpdate = true;
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+}
+
+export function collectFoliagePositions(
+    node: BranchNode,
+    positions: Vector3[],
+) {
+    if (node.children.length === 0) {
+        positions.push(node.end.clone());
+    } else {
+        node.children.forEach(child => {
+            collectFoliagePositions(child, positions);
+        });
+    }
+    return positions;
+}
+
+export function expandToClusters(
+    positions: Vector3[],
+    clusterSize: number,
+    clusterRadius: number,
+    rng: () => number,
+): Vector3[] {
+    const result: Vector3[] = [];
+    positions.forEach((pos: Vector3) => {
+        for (let i = 0; i < clusterSize; ++i) {
+            const offset: Vector3 = randomDirection(rng).multiplyScalar(
+                rng() * clusterRadius,
+            );
+            result.push(pos.clone().add(offset));
+        }
+    });
+    return result;
+}
+
+function randomDirection(rng: () => number): Vector3 {
+    const v = randomRange(rng, 0, 1);
+    const u = randomRange(rng, 0, 1);
+    const phi = Math.acos(1 - 2 * v);
+    const theta = 2 * Math.PI * u;
+    return new Vector3(
+        Math.sin(phi) * Math.cos(theta),
+        Math.cos(phi),
+        Math.sin(phi) * Math.sin(theta),
+    );
+}
+
+export function findMaxDistance(node: BranchNode): number {
+    let max = node.endDistance;
+    for (const child of node.children) {
+        max = Math.max(max, findMaxDistance(child));
+    }
+    return max;
 }

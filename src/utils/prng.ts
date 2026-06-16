@@ -6,3 +6,15 @@ export function createPRNG(seed: number): () => number {
         return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
 }
+
+export function randomRange(
+    rng: () => number,
+    min: number,
+    max: number,
+): number {
+    return rng() * (max - min) + min;
+}
+
+export function randomInt(rng: () => number, min: number, max: number): number {
+    return Math.floor(rng() * (max - min + 1)) + min;
+}

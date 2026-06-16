@@ -1,21 +1,31 @@
+attribute float branchDepth;
+attribute float branchDistance;
+
 // To fragment shader
 varying float vHeight;
+varying float vBranchDepth;
+varying float vMaxDepth;
+varying vec3 vNormal;
 
 // From cpu
 uniform float time;
+uniform float maxDepth;
+uniform float maxDistance;
 
 void main() {
     vHeight = uv.y;
+    vMaxDepth = maxDepth;
+    vBranchDepth = branchDepth;
+    vNormal = normal;
 
-    float wave = sin(time * 0.4) * 0.1;
-    float windInfluence = pow(vHeight, 2.5);
-    float displacement = wave * windInfluence;
+    float windInfluence = branchDistance / maxDistance;
+    vec3 worldPos = (modelMatrix * vec4(position, 1.0)).xyz;
+    float phase = worldPos.x * 0.5 + worldPos.z * 0.5;
+    float wave = sin(time * 0.5 + phase) * 0.1;
 
-    // worldpos
-    gl_Position = modelMatrix * vec4(position, 1.0);
-    // Add wave
-    gl_Position.x += displacement;
-    gl_Position.z += displacement;
-    // Final position
-    gl_Position = projectionMatrix * viewMatrix * gl_Position;
+    vec3 windDir = normalize(vec3(1.0, 0.0, 0.3));
+    vec3 displacement = windDir * wave * windInfluence;
+    vec3 newPos = position + displacement;
+
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(newPos, 1.0);
 }
