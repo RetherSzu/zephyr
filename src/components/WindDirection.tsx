@@ -1,7 +1,8 @@
-import { useMemo, useRef } from 'react';
-
 import * as THREE from 'three';
+import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
+
+// stores
 import { useWindStore } from '@/stores/windStore';
 
 /**

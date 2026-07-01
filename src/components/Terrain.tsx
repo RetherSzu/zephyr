@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { useRef, useEffect } from 'react';
+
 // utils
 import { getHeight } from '@/utils/terrain';
 

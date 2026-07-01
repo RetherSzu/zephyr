@@ -1,14 +1,17 @@
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
+
 // shaders
 import vertex from '@/shaders/grass.vert';
 import fragment from '@/shaders/grass.frag';
+
 // stores
+import { useSunStore } from '@/stores/sunStore';
 import { useWindStore } from '@/stores/windStore';
+
 // utils
 import { getHeight } from '@/utils/terrain';
-import { useSunStore } from '@/stores/sunStore';
 import { grassGeometry } from '@/utils/grassGeometry';
 
 /** Number of blades along one side of the square field. */

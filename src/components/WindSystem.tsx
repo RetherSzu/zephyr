@@ -1,6 +1,8 @@
-import { useWindStore } from '@/stores/windStore';
-import { useFrame } from '@react-three/fiber';
 import { useControls } from 'leva';
+import { useFrame } from '@react-three/fiber';
+
+// stores
+import { useWindStore } from '@/stores/windStore';
 
 /**
  * Headless system that produces the wind state each frame.
