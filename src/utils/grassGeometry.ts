@@ -1,11 +1,19 @@
 import * as THREE from 'three';
 
 /**
- * Create geometry of a blade of grass
- * @param segments Number of verticals rows
- * @param baseWidth Blade base width
- * @param height Height of the blade
- * @param taperCurve Slope of the curve
+ * Builds the geometry of a single grass blade: a tapered vertical strip of
+ * `segments * 2 + 1` vertices — a left/right vertex pair per row, plus a single
+ * apex vertex for the tip — with position, normal, uv and index buffers.
+ *
+ * @param segments - Number of horizontal rows (must be >= 2).
+ * @param baseWidth - Blade width at the base (tapers to 0 at the tip).
+ * @param height - Total height of the blade.
+ * @param taperCurve - Exponent controlling how fast the width tapers toward the tip.
+ * @returns A {@link THREE.BufferGeometry} for one blade, meant to be instanced.
+ *
+ * @remarks
+ * Normals are flat (`+Z`); the shader reconstructs orientation. Height is eased
+ * via `pow(heightRatio, 0.7)` and width via `taperCurve`. Throws if `segments < 2`.
  */
 export function grassGeometry(
     segments: number = 7,

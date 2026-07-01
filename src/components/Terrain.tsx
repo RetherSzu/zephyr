@@ -1,23 +1,29 @@
-import { useRef, useEffect } from 'react';
-
 import * as THREE from 'three';
+import { useRef, useEffect } from 'react';
+// utils
+import { getHeight } from '@/utils/terrain';
 
 /**
  * Generates a 10 x 10 horizontal terrain plane in Three.js and displaces each
  * vertex along its local Z-axis to simulate uneven ground.
  *
- * The plane is built with 1000 x 1000 segments, which produces
- * 1001 x 1001 = 1 002 001 vertices. Displacement runs once on mount via
- * `useEffect`, then normals are recomputed so lighting reflects the new relief.
+ * The plane is built with 128 x 128 segments, which produces
+ * 129 x 129 = 16 641 vertices. Displacement runs once on mount via `useEffect`,
+ * then normals are recomputed so lighting reflects the new relief.
  *
  * @remarks
  * Vertices are offset on the geometry's *local* Z (out-of-plane) axis. Because
  * the mesh is rotated -π/2 around X, that local Z becomes world Y (height) once
- * rendered — a useful object-space vs. world-space distinction.
+ * rendered. The height is sampled with `getHeight(x, y_local)`, and `y_local`
+ * maps to `-worldZ` — the same `getHeight(x, -z)` convention used by `GrassField`
+ * to keep the grass aligned with the ground. The material is a
+ * `meshStandardMaterial`, so the terrain relies on the scene lights (see `Sun`)
+ * to be visible.
  *
  * @performance
- * ~1M vertices is heavy: the displacement loop and `computeVertexNormals()` run
- * on the CPU. Lower the segment count if you need a cheaper mesh.
+ * The displacement loop and `computeVertexNormals()` run once on the CPU at
+ * mount. Raise the segment count for a smoother silhouette at the cost of a
+ * heavier one-time build.
  *
  * @returns {JSX.Element} A `<mesh>` holding the displaced plane geometry.
  *
@@ -34,18 +40,21 @@ export function GenerateTerrain() {
     useEffect(() => {
         if (planeRef.current) {
             const g: THREE.BufferGeometry = planeRef.current.geometry;
-            const p = g.getAttribute('position');
+            const positions = g.getAttribute('position');
 
-            // For each vertex, add a random offset in [-0.005, 0.005) to its
-            // local Z, producing small bumps that read as uneven ground.
-            for (let i = 0; i < p.count; i++) {
-                const z = p.getZ(i) + 0.01 * (Math.random() - 0.5);
-                p.setZ(i, z);
+            for (let i = 0; i < positions.count; i++) {
+                const x = positions.getX(i);
+                const y = positions.getY(i);
+
+                // Based on the x, y coordinate of the vertex, retrieve the z
+                // (height) coordinate for terrain elevation.
+                const height = getHeight(x, y);
+                positions.setZ(i, height);
             }
 
             // Flag the position attribute as dirty so Three.js re-uploads the
             // updated buffer to the GPU on the next render.
-            p.needsUpdate = true;
+            positions.needsUpdate = true;
             // Recompute normals: vertices moved, so the old normals (flat plane)
             // no longer match the surface — without this, lighting ignores the
             // relief.
@@ -55,7 +64,7 @@ export function GenerateTerrain() {
 
     return (
         <mesh ref={planeRef} rotation={[-Math.PI / 2, 0, 0]}>
-            <planeGeometry args={[10, 10, 1000, 1000]} />
+            <planeGeometry args={[10, 10, 128, 128]} />
             <meshStandardMaterial color="#895129" />
         </mesh>
     );
