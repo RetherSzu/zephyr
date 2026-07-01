@@ -1,17 +1,19 @@
 // Import noise2D for colour patches
 #include "noise2D.glsl";
 
+uniform vec3 uSunDirection;
+uniform vec2 uColorSeed;
+
 varying vec3 vNormal;
 varying vec2 vUv;
 // World position of the current blade.
 varying vec3 vWorldPos;
 // To know if the current blade is an accent one (much taller than otherblades).
 varying float vAccent;
-uniform vec3 uSunDirection;
 
 void main(void) {
     // Based on the x, z coordinate of the worldpos, create a simplex 2D noise.
-    float biomeNoise = snoise(vWorldPos.xz * 0.3);
+    float biomeNoise = snoise(vWorldPos.xz * 0.3 + uColorSeed);
 
     // Remap the simplex noise from [-1, 1] to [0, 1].
     float biomeBlend = biomeNoise * 0.5 + 0.5;

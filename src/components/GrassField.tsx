@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { button, useControls } from 'leva';
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 
@@ -80,6 +81,19 @@ export function GrassField() {
     const geometry = useMemo(() => {
         return grassGeometry(7, 0.02, 0.5, 2.0);
     }, []);
+
+    useControls('Grass Color Seed', {
+        'Randomize color': button(() => {
+            if (fieldRef.current) {
+                const shader: THREE.ShaderMaterial = fieldRef.current
+                    .material as THREE.ShaderMaterial;
+                shader.uniforms.uColorSeed.value.set(
+                    Math.random() * 100,
+                    Math.random() * 100,
+                );
+            }
+        }),
+    });
 
     useEffect(() => {
         if (fieldRef.current) {
@@ -243,6 +257,12 @@ export function GrassField() {
                 uniforms={{
                     uTime: { value: 0 },
                     uSunDirection: { value: new THREE.Vector3() },
+                    uColorSeed: {
+                        value: new THREE.Vector2(
+                            Math.random() * 100,
+                            Math.random() * 100,
+                        ),
+                    },
 
                     uWaveScale: { value: 0.08 },
                     uWaveSpeed: { value: 0.15 },
