@@ -1,5 +1,7 @@
 import { createNoise2D } from 'simplex-noise';
-import { createPRNG } from './prng';
+
+// utils
+import { createPRNG } from '@/utils/prng';
 
 /**
  * Seeded 2D simplex noise generator. The fixed seed (`1234`) makes the whole
