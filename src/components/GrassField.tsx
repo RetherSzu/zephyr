@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { button, useControls } from 'leva';
-import { useFrame } from '@react-three/fiber';
+import { dispose, useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 
 // shaders
@@ -94,6 +94,10 @@ export function GrassField() {
             }
         }),
     });
+
+    useEffect(() => {
+        return () => geometry.dispose();
+    }, [geometry]);
 
     useEffect(() => {
         if (fieldRef.current) {
