@@ -66,7 +66,7 @@ export function GenerateTerrain() {
     return (
         <mesh ref={planeRef} rotation={[-Math.PI / 2, 0, 0]}>
             <planeGeometry args={[10, 10, 128, 128]} />
-            <meshStandardMaterial color="#895129" />
+            <meshStandardMaterial color="#2E4210" />
         </mesh>
     );
 }
