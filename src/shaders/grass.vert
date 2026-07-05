@@ -31,6 +31,12 @@ varying vec2 vUv;
 varying vec3 vWorldPos;
 varying float vAccent;
 
+const vec3 WIND_OCTAVE_WEIGHTS = vec3(0.6, 0.3, 0.1);
+const float PHASE_SCALE = 0.5;
+const float SWAY_FREQ = 2.0;
+const float SWAY_OSCIL_WEIGHT = 0.4;
+const float SWAY_LEAN_WEIGHT = 0.6;
+
 mat3 rotateAxis(vec3 axis, float angle) {
     float c = cos(angle);
     float s = sin(angle);
@@ -63,19 +69,17 @@ void main() {
     mat2 rot = mat2(c, s, -s, c);
     vec2 localDir = rot * uWindDirection;
 
-    float windNoise = snoise(samplePos) * 0.6 + snoise(samplePos * 2.5) * 0.3 + snoise(samplePos * 5.0) * 0.1;
+    float windNoise = snoise(samplePos) * WIND_OCTAVE_WEIGHTS.x + snoise(samplePos * 2.5) * WIND_OCTAVE_WEIGHTS.y + snoise(samplePos * 5.0) * WIND_OCTAVE_WEIGHTS.z;
     float falloff = pow(vUv.y, 1.5);
     float localWave = remap(windNoise, -1.0, 1.0, 0.3, 1.0);
     localWave = pow(localWave, 2.0);
     float gustBoost = wave * uWaveStrength;
     float totalWave = (localWave + gustBoost) * uWindStrength;
 
-    float phaseScale = 0.5;
-    float swayFreq = 2.0;
-    float phase = (worldPos.x + worldPos.z) * phaseScale;
-    float sign = sin(uTime * swayFreq + phase);
-    float oscil = totalWave * 0.4;
-    float pench = totalWave * 0.6;
+    float phase = (worldPos.x + worldPos.z) * PHASE_SCALE;
+    float sign = sin(uTime * SWAY_FREQ + phase);
+    float oscil = totalWave * SWAY_OSCIL_WEIGHT;
+    float pench = totalWave * SWAY_LEAN_WEIGHT;
     float fact = pench + oscil * sign;
 
     float angle = fact * uBendAngle * falloff;
