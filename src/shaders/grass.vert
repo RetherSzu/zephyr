@@ -30,7 +30,6 @@ varying vec3 vNormal;
 varying vec2 vUv;
 varying vec3 vWorldPos;
 varying float vAccent;
-varying vec3 vPosition;
 
 mat3 rotateAxis(vec3 axis, float angle) {
     float c = cos(angle);
@@ -44,14 +43,9 @@ mat3 rotateAxis(vec3 axis, float angle) {
 
 void main() {
     vUv = uv;
-    vPosition = position;
     vec3 worldPos = (modelMatrix * instanceMatrix * vec4(0, 0, 0, 1)).xyz;
     vWorldPos = worldPos;
     vAccent = aAccent;
-
-    // Set height factor
-    float heightFactor = mix(1.0, 1.3, aAccent);
-    vPosition.y *= heightFactor;
 
     vec2 wavePos = worldPos.xz * uWaveScale + uWindDirection * uTime * uWaveSpeed;
     float distortion = snoise(worldPos.xz * 0.5) * 0.5;
@@ -100,7 +94,7 @@ void main() {
     vec3 domeAxis = normalize(vec3(-aClumpCenter.y, 0, aClumpCenter.x));
     float domeAngle = aClumpDist * uDomeStrength * falloff;
     mat3 domeRot = rotateAxis(domeAxis, domeAngle);
-    vec3 bentPos = R * domeRot * clumpRot * vPosition;
+    vec3 bentPos = R * domeRot * clumpRot * position;
 
     vec3 transformedNormal = (modelMatrix * instanceMatrix * vec4(R * domeRot * clumpRot * normal, 0.0)).xyz;
     vNormal = normalize(transformedNormal);
