@@ -35,7 +35,7 @@ varying float vAccent;
 varying float vBiomeNoise;
 
 const vec3 WIND_OCTAVE_WEIGHTS = vec3(0.6, 0.3, 0.1);
-const float PHASE_SCALE = 0.5;
+const float PHASE_NOISE_SCALE = 0.5;
 const float SWAY_FREQ = 2.0;
 const float SWAY_OSCIL_WEIGHT = 0.4;
 const float SWAY_LEAN_WEIGHT = 0.6;
@@ -80,7 +80,7 @@ void main() {
     float gustBoost = wave * uWaveStrength;
     float totalWave = (localWave + gustBoost) * uWindStrength;
 
-    float phase = (worldPos.x + worldPos.z) * PHASE_SCALE;
+    float phase = snoise(worldPos.xz * PHASE_NOISE_SCALE) * 6.2831;
     float sign = sin(uTime * SWAY_FREQ + phase);
     float oscil = totalWave * SWAY_OSCIL_WEIGHT;
     float pench = totalWave * SWAY_LEAN_WEIGHT;
