@@ -6,13 +6,12 @@ import { useSunStore } from '@/stores/sunStore';
 /**
  * Creates the scene's directional (sun) and ambient (fill) lights.
  *
- * The directional light is the main angled source that shades surfaces and casts
- * shadows; the ambient light lifts the shadows with a uniform fill so no face is
- * left completely black.
+ * The directional light is the main angled source that shades surfaces; the
+ * ambient light provides a uniform fill so no face is left completely black.
  *
  * The directional light's position is driven by {@link useSunStore}
- * (`sunDirection`, scaled out so its shadow camera frames the scene), keeping it
- * in sync with the `<Sky>` and the grass shader's sun direction.
+ * (`sunDirection`, scaled out along its direction), keeping it in sync with the
+ * `<Sky>` and the grass shader's sun direction.
  *
  * @component
  * @remarks

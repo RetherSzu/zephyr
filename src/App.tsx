@@ -1,6 +1,7 @@
 // R3F
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Sky, Stats } from '@react-three/drei';
+
 // components
 import { Sun } from '@/components/Sun';
 import { SunSystem } from '@/components/SunSystem';
@@ -8,6 +9,7 @@ import { WindSystem } from '@/components/WindSystem';
 import { GrassField } from '@/components/GrassField';
 import { GenerateTerrain } from '@/components/Terrain';
 import { WindDirection } from '@/components/WindDirection';
+
 // stores
 import { useSunStore } from '@/stores/sunStore';
 
