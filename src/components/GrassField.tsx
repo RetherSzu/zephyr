@@ -291,7 +291,7 @@ export function GrassField() {
                     uNoiseScale: { value: 0.15 },
                     uDirectionVariation: { value: 0.3 },
                     uBendAngle: { value: 0.8 },
-                    uDomeStrength: { value: 0.5 },
+                    uDomeStrength: { value: 0.05 },
 
                     uTurbScale: { value: 0.1 },
                     uTurbSpeed: { value: 0.5 },
