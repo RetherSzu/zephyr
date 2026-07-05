@@ -26,10 +26,13 @@ uniform float uTurbScale;
 uniform float uTurbSpeed;
 uniform float uTurbAmount;
 
+uniform vec2 uColorSeed;
+
 varying vec3 vNormal;
 varying vec2 vUv;
 varying vec3 vWorldPos;
 varying float vAccent;
+varying float vBiomeNoise;
 
 const vec3 WIND_OCTAVE_WEIGHTS = vec3(0.6, 0.3, 0.1);
 const float PHASE_SCALE = 0.5;
@@ -51,6 +54,7 @@ void main() {
     vUv = uv;
     vec3 worldPos = (modelMatrix * instanceMatrix * vec4(0, 0, 0, 1)).xyz;
     vWorldPos = worldPos;
+    vBiomeNoise = snoise(worldPos.xz * 0.3 + uColorSeed);
     vAccent = aAccent;
 
     vec2 wavePos = worldPos.xz * uWaveScale + uWindDirection * uTime * uWaveSpeed;
