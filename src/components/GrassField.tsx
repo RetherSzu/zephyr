@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { button, useControls } from 'leva';
-import { dispose, useFrame } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 
 // shaders
@@ -14,6 +14,7 @@ import { useWindStore } from '@/stores/windStore';
 // utils
 import { getHeight } from '@/utils/terrain';
 import { grassGeometry } from '@/utils/grassGeometry';
+import { createPRNG, randomRange } from '@/utils/prng';
 
 /** Number of blades along one side of the square field. */
 const BLADES_PER_ROW = 400;
@@ -107,6 +108,8 @@ export function GrassField() {
             const clumpDistArry = new Float32Array(BLADE_COUNT);
             const aAccent = new Float32Array(BLADE_COUNT);
 
+            const rng = createPRNG(1234);
+
             for (let i = 0; i < BLADES_PER_ROW; i++) {
                 for (let j = 0; j < BLADES_PER_ROW; j++) {
                     const spacing = GRID_SIZE / BLADES_PER_ROW;
@@ -117,14 +120,22 @@ export function GrassField() {
                     const basePosZ =
                         (j / BLADES_PER_ROW) * GRID_SIZE - GRID_SIZE / 2;
 
-                    const jitterX = (Math.random() - 0.5) * jitterAmount;
-                    const jitterZ = (Math.random() - 0.5) * jitterAmount;
+                    const jitterX = randomRange(
+                        rng,
+                        -jitterAmount / 2,
+                        jitterAmount / 2,
+                    );
+                    const jitterZ = randomRange(
+                        rng,
+                        -jitterAmount / 2,
+                        jitterAmount / 2,
+                    );
 
                     const finalX = basePosX + jitterX;
                     const finalZ = basePosZ + jitterZ;
                     const finalY = getHeight(finalX, -finalZ);
                     dummy.position.set(finalX, finalY, finalZ);
-                    dummy.scale.setScalar(0.8 + Math.random() * 0.4);
+                    dummy.scale.setScalar(randomRange(rng, 0.8, 1.2));
                     dummy.updateMatrix();
 
                     const size = 0.1;
@@ -177,8 +188,7 @@ export function GrassField() {
                         dummy.matrix,
                     );
 
-                    aAccent[i * BLADES_PER_ROW + j] =
-                        Math.random() < 0.05 ? 1.0 : 0.0;
+                    aAccent[i * BLADES_PER_ROW + j] = rng() < 0.05 ? 1.0 : 0.0;
                 }
             }
 
