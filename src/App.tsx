@@ -8,7 +8,6 @@ import { SunSystem } from '@/components/SunSystem';
 import { WindSystem } from '@/components/WindSystem';
 import { GrassField } from '@/components/GrassField';
 import { GenerateTerrain } from '@/components/Terrain';
-import { WindDirection } from '@/components/WindDirection';
 
 // stores
 import { useSunStore } from '@/stores/sunStore';
@@ -28,7 +27,6 @@ function App() {
             <SunSystem />
             <WindSystem />
             <OrbitControls />
-            <WindDirection />
             <Stats showPanel={0} />
             <Stats showPanel={1} className="panel1" />
             <Stats showPanel={2} className="panel2" />
