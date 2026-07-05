@@ -33,9 +33,9 @@ void main(void) {
     vec3 gradientCold = mix(cold, coldTip, vUv.y);
 
     // Then we mix our gradients to create the base colour.
-    vec3 dryToLush = mix(gradientDry, gradientLush, biomeBlend * 2.0);
-    vec3 lushToCold = mix(gradientLush, gradientCold, (biomeBlend - 0.5) * 2.0);
-    vec3 baseColor = mix(dryToLush, lushToCold, smoothstep(0.3, 0.7, biomeBlend));
+    vec3 dryToLush = mix(gradientDry, gradientLush, clamp(biomeBlend * 2.0, 0.0, 1.0));
+    vec3 lushToCold = mix(gradientLush, gradientCold, clamp((biomeBlend - 0.5) * 2.0, 0.0, 1.0));
+    vec3 baseColor = mix(dryToLush, lushToCold, step(0.5, biomeBlend));
 
     // Finally we apply vAccent to tint the blade if it is an accent one.
     vec3 baseColorAccent = mix(baseColor, dry, vAccent * vUv.y);
