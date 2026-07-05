@@ -8,6 +8,14 @@ varying vec3 vWorldPos;
 varying float vAccent;
 varying float vBiomeNoise;
 
+// Direct lighting — soft specular glint on the tips + silvery grazing sheen.
+const vec3 SUN_TINT = vec3(1.0, 0.96, 0.85);  // warm highlight colour
+const float SPEC_SHININESS = 16.0;            // broad, soft highlight (grass isn't glossy)
+const float SPEC_STRENGTH = 0.15;
+const vec3 SHEEN_TINT = vec3(0.80, 0.85, 0.80); // cool silvery sheen
+const float SHEEN_POWER = 4.0;
+const float SHEEN_STRENGTH = 0.20;
+
 void main(void) {
     // Retrieve the simplex 2D noise based on the x, z coordinate of the worldpos
     // from the vertex shader
@@ -53,10 +61,22 @@ void main(void) {
     float ambient = 0.3;
     float totalLight = ambient + light * 0.7;
 
+    float NdotL = max(dot(N, L), 0.0);
+
+    // Soft specular glint, concentrated on the blade tips.
+    vec3 Hs = normalize(L + V);
+    float spec = pow(max(dot(N, Hs), 0.0), SPEC_SHININESS) * SPEC_STRENGTH * NdotL * vUv.y;
+
+    // Silvery sheen at grazing view angles, only where the blade is lit.
+    float fresnel = pow(1.0 - max(dot(N, V), 0.0), SHEEN_POWER);
+    float sheen = fresnel * SHEEN_STRENGTH * totalLight;
+
     vec3 finalColor = baseColorAccent * totalLight;
     float ao = mix(0.5, 1.0, vUv.y);
     finalColor *= ao;
     finalColor += trans * thickness * colorTransition;
+    finalColor += spec * SUN_TINT;
+    finalColor += sheen * SHEEN_TINT;
 
     gl_FragColor = vec4(finalColor, 1.0);
 }
