@@ -103,9 +103,9 @@ export function GrassField() {
     useEffect(() => {
         if (fieldRef.current) {
             const dummy = new THREE.Object3D();
-            const voronoiIdArray = new Float32Array(BLADE_COUNT);
+            const clumpAngleArray = new Float32Array(BLADE_COUNT);
             const clumpCenterArray = new Float32Array(BLADE_COUNT * 2);
-            const clumpDistArry = new Float32Array(BLADE_COUNT);
+            const clumpDistArray = new Float32Array(BLADE_COUNT);
             const aAccent = new Float32Array(BLADE_COUNT);
 
             const rng = createPRNG(1234);
@@ -168,19 +168,19 @@ export function GrassField() {
                     }
 
                     const toCenterX = bestSeedX - finalX;
-                    const tocenterZ = bestSeedZ - finalZ;
+                    const toCenterZ = bestSeedZ - finalZ;
 
                     clumpCenterArray[(i * BLADES_PER_ROW + j) * 2] = toCenterX;
                     clumpCenterArray[(i * BLADES_PER_ROW + j) * 2 + 1] =
-                        tocenterZ;
+                        toCenterZ;
 
-                    clumpDistArry[i * BLADES_PER_ROW + j] =
+                    clumpDistArray[i * BLADES_PER_ROW + j] =
                         Math.sqrt(bestDist) / size;
 
                     const aClumpAngle =
                         hashToAngle(bestCellX, bestCellZ) * (2 * Math.PI);
                     const offset = hashToAngle(i, j) * 2 - 1;
-                    voronoiIdArray[i * BLADES_PER_ROW + j] =
+                    clumpAngleArray[i * BLADES_PER_ROW + j] =
                         aClumpAngle + offset * 0.5;
 
                     fieldRef.current.setMatrixAt(
@@ -194,7 +194,7 @@ export function GrassField() {
 
             geometry.setAttribute(
                 'aClumpAngle',
-                new THREE.InstancedBufferAttribute(voronoiIdArray, 1),
+                new THREE.InstancedBufferAttribute(clumpAngleArray, 1),
             );
 
             geometry.setAttribute(
@@ -204,7 +204,7 @@ export function GrassField() {
 
             geometry.setAttribute(
                 'aClumpDist',
-                new THREE.InstancedBufferAttribute(clumpDistArry, 1),
+                new THREE.InstancedBufferAttribute(clumpDistArray, 1),
             );
 
             geometry.setAttribute(
