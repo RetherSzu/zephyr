@@ -1,6 +1,6 @@
 // R3F
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Sky, Stats } from '@react-three/drei';
+import { OrbitControls, Sky } from '@react-three/drei';
 
 // components
 import { Sun } from '@/components/Sun';
@@ -27,9 +27,6 @@ function App() {
             <SunSystem />
             <WindSystem />
             <OrbitControls />
-            <Stats showPanel={0} />
-            <Stats showPanel={1} className="panel1" />
-            <Stats showPanel={2} className="panel2" />
             <Sky sunPosition={sunStore.sunDirection} />
         </Canvas>
     );
