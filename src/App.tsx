@@ -19,7 +19,6 @@ function App() {
     return (
         <Canvas
             style={{ aspectRatio: 1 / 1, width: '100%' }}
-            shadows
             camera={{ position: [10, 20, 10], fov: 60 }}
         >
             <color attach="background" args={['#192432']} />
