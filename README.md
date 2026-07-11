@@ -46,8 +46,8 @@ npm run dev
 ## Credits
 
 - Grass subsurface scattering based on the transmission model by Colin
-  Barré-Brisebois & Marc Bouchard (_"Approximating Translucency for a Fast,
-  Cheap and Convincing Subsurface Scattering Look"_, GDC 2011).
+  Barré-Brisebois & Marc Bouchard ([Approximating Translucency for a Fast,
+  Cheap and Convincing Subsurface Scattering Look](https://www.gdcvault.com/play/1014538/Approximating-Translucency-for-a-Fast), GDC 2011).
 - 2D simplex noise via [simplex-noise](https://github.com/jwagner/simplex-noise.js)
   (JS) and an inlined GLSL port for the shaders.
 - Colour patches inspired by [How I made grass better than 99% of games | Stylized grass 3D pixel art](https://youtu.be/OxsuWDtjuGw?t=125).
